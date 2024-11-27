@@ -1,66 +1,102 @@
 #include <iostream>
 using namespace std;
 
+// é å…ˆå®£å‘Š Polynomial é¡åˆ¥ï¼Œä»¥ä¾› Term é¡åˆ¥çš„ friend ä½¿ç”¨
 class Polynomial;
+
+// å®šç¾© Term é¡åˆ¥ï¼Œè¡¨ç¤ºå¤šé …å¼ä¸­çš„å–®ä¸€é …ç›®
 class Term {
-    friend Polynomial;
-    friend istream& operator>>(istream& in, Polynomial& p); // ¦h¸ü >>
-    friend ostream& operator<<(ostream& out, const Polynomial& p); // ¦h¸ü <<
+    friend Polynomial; // è®“ Polynomial é¡åˆ¥å¯ä»¥ç›´æ¥å­˜å– Term é¡åˆ¥çš„ç§æœ‰æˆå“¡
+    friend istream& operator>>(istream& in, Polynomial& p); // å¤šè¼‰è¼¸å…¥é‹ç®—å­ >>
+    friend ostream& operator<<(ostream& out, const Polynomial& p); // å¤šè¼‰è¼¸å‡ºé‹ç®—å­ <<
 private:
-    double coef; // «Y¼Æ
-    int exp; // ¦¸¤è¼Æ
+    double coef; // é …ç›®çš„ä¿‚æ•¸
+    int exp; // é …ç›®çš„æ¬¡æ–¹æ•¸
 };
 
+// å®šç¾© Polynomial é¡åˆ¥ï¼Œè¡¨ç¤ºå¤šé …å¼çš„é›†åˆ
 class Polynomial {
-    friend istream& operator>>(istream& in, Polynomial& p); // ¦h¸ü >>
-    friend ostream& operator<<(ostream& out, const Polynomial& p); // ¦h¸ü <<
+    friend istream& operator>>(istream& in, Polynomial& p); // å¤šè¼‰è¼¸å…¥é‹ç®—å­ >>
+    friend ostream& operator<<(ostream& out, const Polynomial& p); // å¤šè¼‰è¼¸å‡ºé‹ç®—å­ <<
 private:
-    Term* termArray; // «D¹s¶µªº°}¦C
-    int capacity; // termArray ªº¤j¤p
-    int terms; // «D¹s¶µªº¼Æ¶q
+    Term* termArray; // ç”¨ä¾†å„²å­˜å¤šé …å¼çš„éé›¶é …ï¼ˆä»¥é™£åˆ—å½¢å¼å„²å­˜ï¼‰
+    int capacity; // termArrayçš„å®¹é‡
+    int terms; // å¤šé …å¼ä¸­éé›¶é …ç›®çš„æ•¸é‡
 public:
-    Polynomial(); // «Øºc¤l
-    Polynomial Add(Polynomial poly); // ¥[ªk
-    Polynomial Mult(Polynomial poly); // ­¼ªk
-    double Eval(double f); // ­pºâÁ`¼Æ
-    void NewTerm(const double newCoef, const int newExp); // ·s¼W·sªº¶µ
+    Polynomial(); // é è¨­å»ºæ§‹å­ï¼Œåˆå§‹åŒ–å¤šé …å¼
+    Polynomial(const Polynomial& p); // æ‹·è²å»ºæ§‹å­
+    Polynomial& operator=(const Polynomial& p); // è³¦å€¼é‹ç®—å­
+    ~Polynomial(); // è§£æ§‹å­ï¼Œé‡‹æ”¾è¨˜æ†¶é«”
+
+    Polynomial Add(Polynomial poly); // å¤šé …å¼åŠ æ³•é‹ç®—
+    Polynomial Mult(Polynomial poly); // å¤šé …å¼ä¹˜æ³•é‹ç®—
+    double Eval(double f); // è¨ˆç®—å¤šé …å¼åœ¨ x = f æ™‚çš„å€¼
+    void NewTerm(const double newCoef, const int newExp); // æ–°å¢é …ç›®è‡³å¤šé …å¼
 };
 
-Polynomial::Polynomial() : capacity(2), terms(0) { // «Øºc¤l
-    termArray = new Term[capacity];
+// é è¨­å»ºæ§‹å­ï¼šåˆå§‹åŒ–å¤šé …å¼
+Polynomial::Polynomial() : capacity(2), terms(0) {
+    termArray = new Term[capacity]; // é…ç½®åˆå§‹é™£åˆ—ç©ºé–“
 }
 
-void Polynomial::NewTerm(const double newCoef, const int newExp) { // ·s¼W·sªº¶µ
-    if (terms == capacity) { // ªÅ¶¡¤£¨¬
-        capacity *= 2; // ªÅ¶¡Â½­¿
-        Term* tmp = new Term[capacity];
-        copy(termArray, termArray + terms, tmp);
-        delete[] termArray; // §R°£­ì°}¦C¡AÄÀ©ñ°O¾ĞÅé
-        termArray = tmp;
+// æ‹·è²å»ºæ§‹å­
+Polynomial::Polynomial(const Polynomial& p) : capacity(p.capacity), terms(p.terms) {
+    termArray = new Term[capacity]; // åˆ†é…æ–°çš„è¨˜æ†¶é«”
+    copy(p.termArray, p.termArray + terms, termArray); // è¤‡è£½å…§å®¹
+}
+
+// è³¦å€¼é‹ç®—å­
+Polynomial& Polynomial::operator=(const Polynomial& p) {
+    if (this != &p) { // é˜²æ­¢è‡ªæˆ‘è³¦å€¼
+        delete[] termArray; // é‡‹æ”¾åŸæœ‰çš„è¨˜æ†¶é«”
+        capacity = p.capacity;
+        terms = p.terms;
+        termArray = new Term[capacity]; // åˆ†é…æ–°çš„è¨˜æ†¶é«”
+        copy(p.termArray, p.termArray + terms, termArray); // è¤‡è£½å…§å®¹
     }
-    termArray[terms].coef = newCoef; // ©ñ¤J«Y¼Æ
-    termArray[terms++].exp = newExp; // ©ñ¤J¦¸¤è¼Æ
+    return *this;
 }
 
-Polynomial Polynomial::Add(Polynomial b) { // ¥[ªk
+// è§£æ§‹å­ï¼šé‡‹æ”¾è¨˜æ†¶é«”
+Polynomial::~Polynomial() {
+    delete[] termArray; // é‡‹æ”¾å‹•æ…‹åˆ†é…çš„é™£åˆ—è¨˜æ†¶é«”
+}
+
+
+// æ–°å¢æ–°çš„é …ç›®åˆ°å¤šé …å¼ä¸­
+void Polynomial::NewTerm(const double newCoef, const int newExp) {
+    if (terms == capacity) { // å¦‚æœé™£åˆ—ç©ºé–“å·²æ»¿
+        capacity *= 2; // æ“´å¤§å®¹é‡ç‚ºåŸä¾†çš„å…©å€
+        Term* tmp = new Term[capacity]; // å»ºç«‹æ–°çš„é™£åˆ—
+        copy(termArray, termArray + terms, tmp); // è¤‡è£½èˆŠçš„é …ç›®åˆ°æ–°çš„é™£åˆ—
+        delete[] termArray; // é‡‹æ”¾èˆŠé™£åˆ—è¨˜æ†¶é«”
+        termArray = tmp; // æ›´æ–°æŒ‡å‘æ–°çš„é™£åˆ—
+    }
+    termArray[terms].coef = newCoef; // è¨­å®šä¿‚æ•¸
+    termArray[terms++].exp = newExp; // è¨­å®šæ¬¡æ–¹æ•¸ä¸¦å¢åŠ é …ç›®æ•¸é‡
+}
+
+
+// ä¿®æ­£å¾Œçš„ Add å‡½æ•¸
+Polynomial Polynomial::Add(Polynomial b) { // åŠ æ³•
     Polynomial poly3;
-    int c1 = terms; // poly1ªº¶µ¼Æ
-    int c2 = b.terms; // poly2ªº¶µ¼Æ
-    int i1 = 0; // poly1³B²z¨ì²Ä´X­Ó
-    int i2 = 0; // poly2³B²z¨ì²Ä´X­Ó
+    int c1 = terms; // poly1çš„é …æ•¸
+    int c2 = b.terms; // poly2çš„é …æ•¸
+    int i1 = 0; // poly1è™•ç†åˆ°ç¬¬å¹¾å€‹
+    int i2 = 0; // poly2è™•ç†åˆ°ç¬¬å¹¾å€‹
     while (c1 > 0 || c2 > 0) {
-        if (termArray[i1].exp > b.termArray[i2].exp) {
+        if (i1 < terms && (i2 >= b.terms || termArray[i1].exp > b.termArray[i2].exp)) {
             poly3.NewTerm(termArray[i1].coef, termArray[i1].exp);
             i1++;
             c1--;
         }
-        else if (b.termArray[i2].exp > termArray[i1].exp) {
+        else if (i2 < b.terms && (i1 >= terms || b.termArray[i2].exp > termArray[i1].exp)) {
             poly3.NewTerm(b.termArray[i2].coef, b.termArray[i2].exp);
             i2++;
             c2--;
         }
-        else if (b.termArray[i2].exp == termArray[i1].exp) {
-            poly3.NewTerm((b.termArray[i2].coef + termArray[i1].coef), b.termArray[i2].exp);
+        else if (i1 < terms && i2 < b.terms && termArray[i1].exp == b.termArray[i2].exp) {
+            poly3.NewTerm(termArray[i1].coef + b.termArray[i2].coef, termArray[i1].exp);
             i1++;
             i2++;
             c1--;
@@ -80,22 +116,22 @@ Polynomial Polynomial::Mult(Polynomial b) {
         }
     }
 
-    // ¦X¨Ö¬Û¦P¦¸¤èªº¶µ
+    // åˆä½µç›¸åŒæ¬¡æ–¹çš„é …
     for (int i = 0; i < poly3.terms; i++) {
         for (int j = i + 1; j < poly3.terms; j++) {
             if (poly3.termArray[i].exp == poly3.termArray[j].exp) {
                 poly3.termArray[i].coef += poly3.termArray[j].coef;
-                // ²¾°Ê³Ñ¾lªº¶µ
+                // ç§»å‹•å‰©é¤˜çš„é …
                 for (int k = j; k < poly3.terms - 1; k++) {
                     poly3.termArray[k] = poly3.termArray[k + 1];
                 }
                 poly3.terms--;
-                j--; // ½Õ¾ã¯Á¤Ş¥H­«·sÀË¬d¦X¨Ö«áªº¦ì¸m
+                j--; // èª¿æ•´ç´¢å¼•ä»¥é‡æ–°æª¢æŸ¥åˆä½µå¾Œçš„ä½ç½®
             }
         }
     }
 
-    // «ö­°¾­±Æ¦C
+    // æŒ‰é™å†ªæ’åˆ—
     for (int i = 0; i < poly3.terms - 1; i++) {
         for (int j = i + 1; j < poly3.terms; j++) {
             if (poly3.termArray[i].exp < poly3.termArray[j].exp) {
@@ -118,7 +154,7 @@ double Polynomial::Eval(double x) {
 }
 
 
-ostream& operator<<(ostream& out, const Polynomial& p) { // ¦h¸ü <<
+ostream& operator<<(ostream& out, const Polynomial& p) { // å¤šè¼‰ <<
     out << "(";
     out << p.termArray[0].coef << "X^" << p.termArray[0].exp;
     for (int i = 1; i < p.terms; i++) {
@@ -131,14 +167,16 @@ ostream& operator<<(ostream& out, const Polynomial& p) { // ¦h¸ü <<
     return out;
 }
 
-istream& operator>>(istream& in, Polynomial& p) { // ¦h¸ü >>
-    double coeftemp = 0; // ¼È¦s«Y¼Æ
-    int exptemp = 0; // ¼È¦s¦¸¤è¼Æ
+istream& operator>>(istream& in, Polynomial& p) { // å¤šè¼‰ >>
+    double coeftemp = 0; // æš«å­˜ä¿‚æ•¸
+    int exptemp = 0; // æš«å­˜æ¬¡æ–¹æ•¸
     char ch;
 
     while (1) {
-        ch = in.peek(); // ÀË¬dcin¬y¤Wªº²Ä¤@­Ó¦ì¤¸
-        while (ch < '0' || ch > '9') { // ª½¨ì¤U¤@­Ó¦ì¤¸¬O¼Æ¦r´N¥Nªí¬O¨t¼Æ¤F´N°±¤U¨Ó·Ç³Æ¿é¤J¨ìcoeftemp
+        coeftemp = 0;
+        exptemp = 0;
+        ch = in.peek(); // æª¢æŸ¥cinæµä¸Šçš„ç¬¬ä¸€å€‹ä½å…ƒ
+        while (ch < '0' || ch > '9') { // ç›´åˆ°ä¸‹ä¸€å€‹ä½å…ƒæ˜¯æ•¸å­—å°±ä»£è¡¨æ˜¯ç³»æ•¸äº†å°±åœä¸‹ä¾†æº–å‚™è¼¸å…¥åˆ°coeftemp
             if (ch == '-') {
                 in.get();
                 ch = in.peek();
@@ -146,34 +184,35 @@ istream& operator>>(istream& in, Polynomial& p) { // ¦h¸ü >>
                     in.get();
                     ch = in.peek();
                 }
-                in >> coeftemp; // Åª¨ú«Y¼Æ
+                in >> coeftemp; // è®€å–ä¿‚æ•¸
                 coeftemp *= -1;
                 break;
             }
             in.get();
             ch = in.peek();
             if (ch >= '0' && ch <= '9') {
-                in >> coeftemp; // Åª¨ú«Y¼Æ
+                in >> coeftemp; // è®€å–ä¿‚æ•¸
                 break;
             }
         }
         bool check = true;
 
-        ch = in.peek(); // ÀË¬dcin¬y¤Wªº²Ä¤@­Ó¦ì¤¸
-        while (ch < '0' || ch > '9') { // ¤ÏÂĞ½T»{ª½¨ì¤U¤@­Ó¦ì¤¸¬O¼Æ¦r´N¥Nªí¬O¦¸¤è¼Æ¤F´N°±¤U¨Ó·Ç³Æ¿é¤J¨ìexptemp
+        ch = in.peek(); // æª¢æŸ¥cinæµä¸Šçš„ç¬¬ä¸€å€‹ä½å…ƒ
+        while (ch < '0' || ch > '9') { // åè¦†ç¢ºèªç›´åˆ°ä¸‹ä¸€å€‹ä½å…ƒæ˜¯æ•¸å­—å°±ä»£è¡¨æ˜¯æ¬¡æ–¹æ•¸äº†å°±åœä¸‹ä¾†æº–å‚™è¼¸å…¥åˆ°exptemp
             in.get();
             ch = in.peek();
         }
-        in >> exptemp; // Åª¨ú¦¸¤è¼Æ
-        p.NewTerm(coeftemp, exptemp); // ·s¼W¶µ¥Ø
-        ch = in.peek(); // ÀË¬dcin¬y¤Wªº²Ä¤@­Ó¦ì¤¸
+        in >> exptemp; // è®€å–æ¬¡æ–¹æ•¸
+        p.NewTerm(coeftemp, exptemp); // æ–°å¢é …ç›®
+        ch = in.peek(); // æª¢æŸ¥cinæµä¸Šçš„ç¬¬ä¸€å€‹ä½å…ƒ
         if (ch == ')') break;
-        while (1) { // ¤ÏÂĞ½T»{ª½¨ì¤U¤@­Ó¦ì¤¸¡A¦pªG¬O + or - ´N¥Nªí«á­±ÁÙ¦³¦Ü¤Ö¤@²Õ­n¿é¤J¡A¦pªG¦A¹Lµ{¤¤§ä¨ì')'´N¥Nªí¤w¸gµ²§ô¿é¤J¤F
-            in.get();
-            ch = in.peek();
+        while (1) { // åè¦†ç¢ºèªç›´åˆ°ä¸‹ä¸€å€‹ä½å…ƒï¼Œå¦‚æœæ˜¯ + or - å°±ä»£è¡¨å¾Œé¢é‚„æœ‰è‡³å°‘ä¸€çµ„è¦è¼¸å…¥ï¼Œå¦‚æœå†éç¨‹ä¸­æ‰¾åˆ°')'å°±ä»£è¡¨å·²ç¶“çµæŸè¼¸å…¥äº†
             if (ch == '+' || ch == '-') {
                 break;
             }
+            in.get();
+            ch = in.peek();
+            
             if (ch == ')') {
                 check = false;
                 break;
@@ -182,25 +221,22 @@ istream& operator>>(istream& in, Polynomial& p) { // ¦h¸ü >>
         if (!check)
             break;
     }
-    in.get(); // ©¿²¤´«¦æ²Å¸¹¡]¦pªG¦³ªº¸Ü¡^
+    in.get(); // å¿½ç•¥æ›è¡Œç¬¦è™Ÿï¼ˆå¦‚æœæœ‰çš„è©±ï¼‰
     return in;
 }
-
+// ä¸»ç¨‹å¼
 int main() {
-    Polynomial poly1;
-    Polynomial poly2;
-    Polynomial poly3;
-    Polynomial poly4;
-    cout << "¿é¤J½d¨Ò:(5X^3+2X^2+1X^0) <== ¬A¸¹¤@©w­n¥[(½Ğ¨Ï¥Î­°¾­¿é¤J!!!)" << endl;
-    cout << "poly1:";
+    Polynomial poly1, poly2, poly3, poly4;
+    cout << "è¼¸å…¥ç¯„ä¾‹:(5X^3+2X^2+1X^0) <== æ‹¬è™Ÿä¸€å®šè¦åŠ ( )" << endl;
+    cout << "è«‹è¼¸å…¥ç¬¬ä¸€å€‹å¤šé …å¼:" << endl;
     cin >> poly1;
-    cout << "poly2:";
+    cout << "è«‹è¼¸å…¥ç¬¬äºŒå€‹å¤šé …å¼:" << endl;
     cin >> poly2;
     poly3 = poly1.Add(poly2);
-    cout << endl << poly1 << " + " << poly2 << endl << "= " << poly3 << endl;
+    cout << "ç›¸åŠ çµæœç‚ºï¼š" << poly3 << endl;
     poly4 = poly1.Mult(poly2);
-    cout << endl << poly1 << " * " << poly2 << endl << "= " << poly4 << endl;
-    double x=0; cout << "¿é¤J¤@­Ó­È¨Ó­pºâ¦h¶µ¦¡ªº­È: ";
+    cout << "ç›¸ä¹˜çµæœç‚ºï¼š" << poly4 << endl;
+    double x = 0; cout << "è¼¸å…¥ä¸€å€‹å€¼ä¾†è¨ˆç®—å¤šé …å¼çš„å€¼: ";
     cin >> x;
     cout << poly3 << ": x=" << "(" << x << ") = " << poly3.Eval(x) << endl;
     cout << poly4 << ": x=" << "(" << x << ") = " << poly4.Eval(x) << endl;
