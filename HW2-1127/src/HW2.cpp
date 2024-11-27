@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 // 預先宣告 Polynomial 類別，以供 Term 類別的 friend 使用
