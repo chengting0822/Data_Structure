@@ -78,7 +78,7 @@ void Polynomial::NewTerm(const double newCoef, const int newExp) {
 }
 
 
-// 修正後的 Add 函數
+// Add 函數
 Polynomial Polynomial::Add(Polynomial b) { // 加法
     Polynomial poly3;
     int c1 = terms; // poly1的項數
